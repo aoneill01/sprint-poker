@@ -18,6 +18,24 @@ export default function useWebSocket(name) {
     ws.current.send(JSON.stringify({ name: nameRef.current, card }));
   }, []);
 
+  const reset = () => {
+    if (ws.current?.readyState !== 1) {
+      console.error("WebSocket not connected.");
+      return;
+    }
+
+    ws.current.send(JSON.stringify({ action: "reset" }));
+  };
+
+  const kickAll = () => {
+    if (ws.current?.readyState !== 1) {
+      console.error("WebSocket not connected.");
+      return;
+    }
+
+    ws.current.send(JSON.stringify({ action: "kickAll" }));
+  };
+
   useEffect(() => {
     if (ws.current?.readyState === 1) pickCard(undefined);
   }, [pickCard, name]);
@@ -47,5 +65,5 @@ export default function useWebSocket(name) {
     };
   }, [pickCard]);
 
-  return { hands, myCard, pickCard };
+  return { hands, myCard, pickCard, reset, kickAll };
 }

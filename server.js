@@ -8,7 +8,7 @@ const dev = process.env.NODE_ENV !== "production";
 const app = next({ dev });
 const handle = app.getRequestHandler();
 
-const hands = [];
+let hands = [];
 
 app.prepare().then(() => {
   const server = express();
@@ -27,13 +27,21 @@ app.prepare().then(() => {
     ws.on("message", (message) => {
       console.log("message", message);
       const payload = JSON.parse(message);
-      const existingHand = hands.find(({ name }) => name === payload.name);
-      if (existingHand) {
-        existingHand.card =
-          payload.card === undefined ? existingHand.card : payload.card;
+
+      if (payload.action === "reset") {
+        hands.forEach((hand) => (hand.card = null));
+      } else if (payload.action === "kickAll") {
+        hands = [];
       } else {
-        hands.push({ name: payload.name, card: payload.card ?? null });
+        const existingHand = hands.find(({ name }) => name === payload.name);
+        if (existingHand) {
+          existingHand.card =
+            payload.card === undefined ? existingHand.card : payload.card;
+        } else {
+          hands.push({ name: payload.name, card: payload.card ?? null });
+        }
       }
+
       publish();
     });
 
