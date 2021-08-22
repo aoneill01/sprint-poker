@@ -1,3 +1,5 @@
+import { Button } from "@material-ui/core";
+
 export default function Hand({ card, onSelection }) {
   const values = [1, 2, 3, 5, 8, 13, 21];
   const createSelectionHandler = (value) => () =>
@@ -6,7 +8,7 @@ export default function Hand({ card, onSelection }) {
   return (
     <div>
       {values.map((value) => (
-        <button
+        <Button
           key={value}
           onClick={createSelectionHandler(value)}
           style={{
@@ -14,7 +16,7 @@ export default function Hand({ card, onSelection }) {
           }}
         >
           {value}
-        </button>
+        </Button>
       ))}
     </div>
   );

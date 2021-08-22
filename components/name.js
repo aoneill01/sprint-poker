@@ -1,3 +1,4 @@
+import { Button, TextField } from "@material-ui/core";
 import { useEffect, useState } from "react";
 
 export default function Name({ onSubmit }) {
@@ -14,15 +15,15 @@ export default function Name({ onSubmit }) {
 
   return (
     <div>
-      Name:{" "}
-      <input
-        type="text"
+      <TextField
+        label="Name"
+        variant="outlined"
         value={name}
         onChange={(event) => setName(event.target.value)}
       />
-      <button disabled={!name.trim()} onClick={handleSubmit}>
+      <Button disabled={!name.trim()} onClick={handleSubmit}>
         Submit
-      </button>
+      </Button>
     </div>
   );
 }

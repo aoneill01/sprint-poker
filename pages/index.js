@@ -10,14 +10,9 @@ export default function Home() {
   const { myCard, pickCard } = useWebSocket(name);
 
   return (
-    <div className={styles.container}>
-      <Head>
-        <title>Pick a card</title>
-      </Head>
-      <main className={styles.main}>
-        {!name && <Name onSubmit={setName} />}
-        {name && <Hand card={myCard} onSelection={pickCard} />}
-      </main>
-    </div>
+    <main className={styles.main}>
+      {!name && <Name onSubmit={setName} />}
+      {name && <Hand card={myCard} onSelection={pickCard} />}
+    </main>
   );
 }
