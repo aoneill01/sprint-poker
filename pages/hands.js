@@ -14,6 +14,7 @@ import { Delete, Help, ThumbUp } from "@material-ui/icons";
 import { useState } from "react";
 import useTimer from "../hooks/useTimer";
 import useWebSocket from "../hooks/useWebSocket";
+import { cards } from "../cards";
 
 const useStyles = makeStyles((theme) => ({
   top: {
@@ -27,8 +28,7 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.secondary.contrastText,
   },
   shown: {
-    backgroundColor: theme.palette.primary.main,
-    color: theme.palette.primary.contrastText,
+    color: "white",
   },
   main: {
     maxWidth: theme.spacing(50),
@@ -43,7 +43,18 @@ export default function Hands() {
   const classes = useStyles();
 
   const getAvatar = (card) => {
-    if (showCards) return <Avatar className={classes.shown}>{card}</Avatar>;
+    if (showCards)
+      return (
+        <Avatar
+          className={classes.shown}
+          style={{
+            backgroundColor:
+              cards.find((c) => c.value === card)?.color ?? "gray",
+          }}
+        >
+          {card}
+        </Avatar>
+      );
     return card ? (
       <Avatar className={classes.ready}>
         <ThumbUp />

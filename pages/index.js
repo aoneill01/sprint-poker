@@ -6,7 +6,7 @@ import useWebSocket from "../hooks/useWebSocket";
 
 const useStyles = makeStyles((theme) => ({
   container: {
-    marginTop: theme.spacing(2),
+    margin: `${theme.spacing(2)}px auto`,
   },
 }));
 
@@ -16,10 +16,10 @@ export default function Home() {
   const classes = useStyles();
 
   return (
-    <Container maxWidth="sm" className={classes.container}>
+    <Container className={classes.container}>
       <main>
         {!name && <Name onSubmit={setName} />}
-        {name && <Hand card={myCard} onSelection={pickCard} />}
+        {name && <Hand cardValue={myCard} onSelection={pickCard} />}
       </main>
     </Container>
   );
