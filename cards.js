@@ -1,18 +1,12 @@
-import {
-  blue,
-  cyan,
-  deepPurple,
-  green,
-  indigo,
-  lightBlue,
-  teal,
-} from "@material-ui/core/colors";
+import chroma from "chroma-js";
 
 const getColor = (distance) => {
-  const start = 180;
-  const end = 0;
-  const hue = start + distance * (end - start);
-  return `hsl(${hue}, 70%, 40%)`;
+  return chroma.mix(
+    "hsl(150, 80%, 35%)",
+    "hsl(330, 70%, 40%)",
+    distance,
+    "lch"
+  );
 };
 
 export const cards = [
