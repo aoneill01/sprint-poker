@@ -27,13 +27,13 @@ export default function useWebSocket(name) {
     ws.current.send(JSON.stringify({ action: "reset" }));
   };
 
-  const kickAll = () => {
+  const kick = (name) => {
     if (ws.current?.readyState !== 1) {
       console.error("WebSocket not connected.");
       return;
     }
 
-    ws.current.send(JSON.stringify({ action: "kickAll" }));
+    ws.current.send(JSON.stringify({ action: "kick", name }));
   };
 
   useEffect(() => {
@@ -44,7 +44,7 @@ export default function useWebSocket(name) {
     let reconnect = true;
 
     const init = (reconnectDelay = 500) => {
-      ws.current = new WebSocket(`ws://${location.host}/test`);
+      ws.current = new WebSocket(`ws://${location.host}/poker`);
       ws.current.addEventListener("message", (event) => {
         setHands(JSON.parse(event.data));
       });
@@ -65,5 +65,5 @@ export default function useWebSocket(name) {
     };
   }, [pickCard]);
 
-  return { hands, myCard, pickCard, reset, kickAll };
+  return { hands, myCard, pickCard, reset, kick };
 }

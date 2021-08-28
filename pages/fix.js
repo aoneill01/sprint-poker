@@ -1,12 +1,12 @@
 import { Button } from "@material-ui/core";
-import useWebSocket from "../hooks/useWebsocket";
+import useWebSocket from "../hooks/useWebSocket";
 
 export default function Home() {
-  const { kickAll } = useWebSocket();
+  const { kick } = useWebSocket();
 
   return (
     <main>
-      <Button onClick={kickAll}>Kick All</Button>
+      <Button onClick={() => kick()}>Kick All</Button>
     </main>
   );
 }

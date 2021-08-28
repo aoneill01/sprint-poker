@@ -2,7 +2,7 @@ import { Container, makeStyles } from "@material-ui/core";
 import { useState } from "react";
 import Hand from "../components/hand";
 import Name from "../components/name";
-import useWebSocket from "../hooks/useWebsocket";
+import useWebSocket from "../hooks/useWebSocket";
 
 const useStyles = makeStyles((theme) => ({
   container: {

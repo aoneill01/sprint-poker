@@ -1,6 +1,7 @@
 const express = require("express");
-const next = require("next");
 const enableWs = require("express-ws");
+const next = require("next");
+const schedule = require("node-schedule");
 const WebSocket = require("ws");
 
 const port = parseInt(process.env.PORT, 10) || 3000;
@@ -14,24 +15,33 @@ app.prepare().then(() => {
   const server = express();
   const wsInstance = enableWs(server);
 
-  server.ws("/test", (ws) => {
+  const publish = () => {
+    wsInstance.getWss().clients.forEach((client) => {
+      if (client.readyState !== WebSocket.OPEN) return;
+      client.send(JSON.stringify(hands));
+    });
+  };
+
+  schedule.scheduleJob("0 0 * * *", () => {
+    hands = [];
+    publish();
+  });
+
+  server.ws("/poker", (ws) => {
     console.log("connected");
 
-    const publish = () => {
-      wsInstance.getWss().clients.forEach((client) => {
-        if (client.readyState !== WebSocket.OPEN) return;
-        client.send(JSON.stringify(hands));
-      });
-    };
     ws.on("close", () => console.log("disconnected"));
+
     ws.on("message", (message) => {
       console.log("message", message);
       const payload = JSON.parse(message);
 
       if (payload.action === "reset") {
         hands.forEach((hand) => (hand.card = null));
-      } else if (payload.action === "kickAll") {
-        hands = [];
+      } else if (payload.action === "kick") {
+        hands = payload.name
+          ? hands.filter(({ name }) => name !== payload.name)
+          : [];
       } else {
         const existingHand = hands.find(({ name }) => name === payload.name);
         if (existingHand) {

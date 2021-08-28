@@ -1,17 +1,19 @@
 import {
   Avatar,
   Button,
+  IconButton,
   List,
   ListItem,
   ListItemAvatar,
+  ListItemSecondaryAction,
   ListItemText,
   makeStyles,
   Typography,
 } from "@material-ui/core";
-import { Help, ThumbUp } from "@material-ui/icons";
+import { Delete, Help, ThumbUp } from "@material-ui/icons";
 import { useState } from "react";
 import useTimer from "../hooks/useTimer";
-import useWebSocket from "../hooks/useWebsocket";
+import useWebSocket from "../hooks/useWebSocket";
 
 const useStyles = makeStyles((theme) => ({
   top: {
@@ -28,10 +30,13 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: theme.palette.primary.main,
     color: theme.palette.primary.contrastText,
   },
+  main: {
+    maxWidth: theme.spacing(50),
+  },
 }));
 
 export default function Hands() {
-  const { hands, reset } = useWebSocket();
+  const { hands, reset, kick } = useWebSocket();
   const [start, setStart] = useState(new Date());
   const time = useTimer(start);
   const showCards = hands?.every(({ card }) => card !== null);
@@ -56,7 +61,7 @@ export default function Hands() {
   };
 
   return (
-    <main>
+    <main className={classes.main}>
       <div className={classes.top}>
         <Button variant="outlined" onClick={handleReset}>
           Reset
@@ -64,12 +69,23 @@ export default function Hands() {
         <Typography>{time}</Typography>
       </div>
       <List>
-        {hands?.map(({ name, card }) => (
-          <ListItem key={name}>
-            <ListItemAvatar>{getAvatar(card)}</ListItemAvatar>
-            <ListItemText>{name}</ListItemText>
-          </ListItem>
-        ))}
+        {hands
+          ?.sort((handA, handB) => handA.name.localeCompare(handB.name))
+          .map(({ name, card }) => (
+            <ListItem key={name}>
+              <ListItemAvatar>{getAvatar(card)}</ListItemAvatar>
+              <ListItemText>{name}</ListItemText>
+              <ListItemSecondaryAction>
+                <IconButton
+                  edge="end"
+                  aria-label="kick"
+                  onClick={() => kick(name)}
+                >
+                  <Delete />
+                </IconButton>
+              </ListItemSecondaryAction>
+            </ListItem>
+          ))}
       </List>
     </main>
   );
