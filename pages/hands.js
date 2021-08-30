@@ -15,12 +15,14 @@ import { useState } from "react";
 import useTimer from "../hooks/useTimer";
 import useWebSocket from "../hooks/useWebSocket";
 import { cards } from "../cards";
+import Image from "next/image";
+import qr from "../images/qr.png";
 
 const useStyles = makeStyles((theme) => ({
   top: {
     display: "flex",
     alignItems: "baseline",
-    margin: theme.spacing(1),
+    padding: theme.spacing(1),
     gap: theme.spacing(2),
   },
   ready: {
@@ -32,6 +34,19 @@ const useStyles = makeStyles((theme) => ({
   },
   main: {
     maxWidth: theme.spacing(50),
+    display: "flex",
+    flexDirection: "column",
+  },
+  list: {
+    flex: 1,
+  },
+  figure: {
+    margin: 0,
+    paddingBottom: theme.spacing(1),
+    "& figcaption": {
+      fontSize: 12,
+      marginLeft: theme.spacing(1),
+    },
   },
 }));
 
@@ -79,7 +94,7 @@ export default function Hands() {
         </Button>
         <Typography>{time}</Typography>
       </div>
-      <List>
+      <List className={classes.list}>
         {hands
           ?.sort((handA, handB) => handA.name.localeCompare(handB.name))
           .map(({ name, card }) => (
@@ -98,6 +113,15 @@ export default function Hands() {
             </ListItem>
           ))}
       </List>
+      <figure className={classes.figure}>
+        <Image src={qr} alt="http://sprint.do.aoneill.com" />
+        <Typography component="figcaption">
+          Join at{" "}
+          <a href="http://sprint.do.aoneill.com">
+            http://sprint.do.aoneill.com
+          </a>
+        </Typography>
+      </figure>
     </main>
   );
 }

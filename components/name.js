@@ -12,6 +12,10 @@ const useStyles = makeStyles(() => ({
   input: {
     width: "100%",
   },
+  card: {
+    maxWidth: 500,
+    margin: "0 auto",
+  },
 }));
 
 export default function Name({ onSubmit }) {
@@ -28,7 +32,7 @@ export default function Name({ onSubmit }) {
   };
 
   return (
-    <Card>
+    <Card className={classes.card}>
       <CardContent>
         <TextField
           className={classes.input}
