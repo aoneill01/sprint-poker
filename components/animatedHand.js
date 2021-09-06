@@ -18,7 +18,7 @@ import {
   WebGLRenderer,
 } from "three";
 import cardBack from "../images/card-back.png";
-import cardFront from "../images/card-front.png";
+import cardFront from "../images/card21.png";
 
 export default function AnimatedHand({ cardValue, showCards }) {
   const myTest = useRef(null);
@@ -57,7 +57,7 @@ class ThreeHand {
     light.position.set(1, 1, 2);
 
     this.camera = new PerspectiveCamera(
-      75,
+      55,
       this.width / this.height,
       0.1,
       1000
@@ -69,26 +69,22 @@ class ThreeHand {
 
     this.scene = new Scene();
     this.scene.add(light);
-    this.scene.add(new AmbientLight(0xffffff, 0.3));
+    this.scene.add(new AmbientLight(0xffffff, 0.5));
     this.scene.add(this.camera);
     this.scene.add(card);
     this.scene.background = new Color(0x111111);
 
     const animate = (timestamp) => {
+      let angle = Math.floor(timestamp) / 1000;
+
       requestAnimationFrame(animate);
       this.renderer.render(this.scene, this.camera);
-      card.rotation.y += 0.1;
+      card.rotation.y = angle;
     };
     requestAnimationFrame(animate);
   }
 
-  update(cardValue, showCards) {
-    // if (showCards) {
-    //   this.element.textContent = cardValue;
-    // } else {
-    //   this.element.textContent = cardValue ? "+" : "?";
-    // }
-  }
+  update(cardValue, showCards) {}
 
   createCard() {
     const back = new Mesh(ThreeHand.cardGeometry, this.materialBack);

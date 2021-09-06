@@ -14,9 +14,15 @@ import { Delete, Help, ThumbUp } from "@material-ui/icons";
 import { useState } from "react";
 import useTimer from "../hooks/useTimer";
 import useWebSocket from "../hooks/useWebSocket";
-import { cards } from "../cards";
 import Image from "next/image";
 import qr from "../images/qr.png";
+import card1 from "../images/card1.png";
+import card2 from "../images/card2.png";
+import card3 from "../images/card3.png";
+import card5 from "../images/card5.png";
+import card8 from "../images/card8.png";
+import card13 from "../images/card13.png";
+import card21 from "../images/card21.png";
 import AnimatedHand from "../components/animatedHand";
 
 const useStyles = makeStyles((theme) => ({
@@ -60,27 +66,6 @@ export default function Hands() {
 
   const getAvatar = (card) => {
     return <AnimatedHand cardValue={card} showCards={showCards} />;
-    // if (showCards)
-    //   return (
-    //     <Avatar
-    //       className={classes.shown}
-    //       style={{
-    //         backgroundColor:
-    //           cards.find((c) => c.value === card)?.color ?? "gray",
-    //       }}
-    //     >
-    //       {card}
-    //     </Avatar>
-    //   );
-    // return card ? (
-    //   <Avatar className={classes.ready}>
-    //     <ThumbUp />
-    //   </Avatar>
-    // ) : (
-    //   <Avatar>
-    //     <Help />
-    //   </Avatar>
-    // );
   };
 
   const handleReset = () => {
@@ -123,6 +108,13 @@ export default function Hands() {
             http://sprint.do.aoneill.com
           </a>
         </Typography>
+        <Image src={card1} />
+        <Image src={card2} />
+        <Image src={card3} />
+        <Image src={card5} />
+        <Image src={card8} />
+        <Image src={card13} />
+        <Image src={card21} />
       </figure>
     </main>
   );
