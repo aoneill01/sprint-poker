@@ -18,7 +18,24 @@ import {
   WebGLRenderer,
 } from "three";
 import cardBack from "../images/card-back.png";
-import cardFront from "../images/card21.png";
+import card1 from "../images/card1.png";
+import card2 from "../images/card2.png";
+import card3 from "../images/card3.png";
+import card5 from "../images/card5.png";
+import card8 from "../images/card8.png";
+import card13 from "../images/card13.png";
+import card21 from "../images/card21.png";
+
+const cardImages = [
+  { value: null, image: card1 },
+  { value: 1, image: card1 },
+  { value: 2, image: card2 },
+  { value: 3, image: card3 },
+  { value: 5, image: card5 },
+  { value: 8, image: card8 },
+  { value: 13, image: card13 },
+  { value: 21, image: card21 },
+];
 
 export default function AnimatedHand({ cardValue, showCards }) {
   const myTest = useRef(null);
@@ -33,66 +50,250 @@ export default function AnimatedHand({ cardValue, showCards }) {
 class ThreeHand {
   static loader = new TextureLoader();
   static cardGeometry = ThreeHand.createCardGeometry();
-  width = 200;
-  height = 125;
+
   materialBack = new MeshStandardMaterial({
     map: ThreeHand.loader.load(cardBack.src),
     side: BackSide,
     roughness: 0.4,
   });
-  materialFront = new MeshStandardMaterial({
-    map: ThreeHand.loader.load(cardFront.src),
-    side: FrontSide,
-    roughness: 0.4,
-  });
+  materialFrontMap = cardImages.reduce(
+    (acc, { value, image }) => ({
+      ...acc,
+      [value]: new MeshStandardMaterial({
+        map: ThreeHand.loader.load(image.src),
+        side: FrontSide,
+        roughness: 0.4,
+      }),
+    }),
+    {}
+  );
 
   constructor(element) {
-    this.element = element;
+    this.state = "thinking";
 
-    this.renderer = new WebGLRenderer({ antialias: true });
-    this.renderer.setSize(this.width, this.height);
-    this.element.appendChild(this.renderer.domElement);
+    const width = 200;
+    const height = 125;
+
+    const renderer = new WebGLRenderer({ antialias: true });
+    renderer.setSize(width, height);
+    element.appendChild(renderer.domElement);
 
     const light = new PointLight(0xffffff, 0.5);
     light.position.set(1, 1, 2);
 
-    this.camera = new PerspectiveCamera(
-      55,
-      this.width / this.height,
-      0.1,
-      1000
-    );
-    this.camera.position.z = 2.2;
+    const camera = new PerspectiveCamera(55, width / height, 0.1, 1000);
+    camera.position.z = 2.2;
 
-    const card = this.createCard();
-    card.position.z = -0.2;
+    this.hand = this.createHand();
+    this.hand.object.position.z = -0.5;
 
-    this.scene = new Scene();
-    this.scene.add(light);
-    this.scene.add(new AmbientLight(0xffffff, 0.5));
-    this.scene.add(this.camera);
-    this.scene.add(card);
-    this.scene.background = new Color(0x111111);
+    const scene = new Scene();
+    scene.add(light);
+    scene.add(new AmbientLight(0xffffff, 0.5));
+    scene.add(camera);
+    scene.add(this.hand.object);
+    scene.background = new Color(0x111111);
 
     const animate = (timestamp) => {
-      let angle = Math.floor(timestamp) / 1000;
-
+      //   let angle = Math.floor(timestamp) / 1000;
+      this.hand.update(timestamp);
       requestAnimationFrame(animate);
-      this.renderer.render(this.scene, this.camera);
-      card.rotation.y = angle;
+      renderer.render(scene, camera);
+      //   this.hand.object.rotation.y = angle;
     };
     requestAnimationFrame(animate);
   }
 
-  update(cardValue, showCards) {}
+  update(cardValue, showCards) {
+    if (this.cardValue !== cardValue && cardValue !== null) {
+      this.hand.cards.forEach(
+        (card) => (card.children[1].material = this.materialFrontMap[cardValue])
+      );
+    }
+
+    if (showCards) {
+      if (!this.showTimerId) {
+        this.showTimerId = setTimeout(() => {
+          this.state = "animateReveal";
+          this.animateStart = null;
+        }, 3000);
+      }
+    } else {
+      if (this.showTimerId) {
+        clearTimeout(this.showTimerId);
+        this.showTimerId = null;
+      }
+    }
+
+    switch (this.state) {
+      case "thinking":
+        if (cardValue) {
+          this.state = "animatePick";
+          this.animateStart = null;
+        }
+        break;
+      case "picked":
+        if (!cardValue) {
+          this.state = "animateUnpick";
+          this.animateStart = null;
+        }
+      case "revealed":
+        if (!showCards) {
+          this.state = "animateUnreveal";
+          this.animateStart = null;
+        }
+    }
+
+    this.cardValue = cardValue;
+    this.showCards = showCards;
+  }
 
   createCard() {
     const back = new Mesh(ThreeHand.cardGeometry, this.materialBack);
-    const front = new Mesh(ThreeHand.cardGeometry, this.materialFront);
+    const front = new Mesh(ThreeHand.cardGeometry, this.materialFrontMap[1]);
     const group = new Group();
     group.add(back);
     group.add(front);
     return group;
+  }
+
+  createHand() {
+    const group = new Group();
+    const CARD_COUNT = 6;
+    let cards = [];
+    let cardGroups = [];
+    for (let i = 0; i < CARD_COUNT; i++) {
+      const cardGroup = new Group();
+      const card = this.createCard();
+      card.position.set(0, 5, i * 0.05);
+      cardGroup.rotation.set(0, Math.PI, -0.1 * (i - (CARD_COUNT - 1) / 2));
+      cardGroup.add(card);
+      group.add(cardGroup);
+      cards.push(card);
+      cardGroups.push(cardGroup);
+    }
+    const result = new Group();
+    group.position.y = -5;
+    result.add(group);
+
+    const update = (timestamp) => {
+      if (!this.animateStart) this.animateStart = timestamp;
+
+      switch (this.state) {
+        case "thinking":
+          cards.forEach((card, i) => {
+            card.position.y = 5 + ThreeHand.getOffset(timestamp + 100 * i);
+          });
+          break;
+        case "animatePick":
+          this.animatePick(timestamp);
+          break;
+        case "animateUnpick":
+          this.animateUnpick(timestamp);
+          break;
+        case "animateReveal":
+          this.animateReveal(timestamp);
+          break;
+        case "revealed":
+          this.flip(1);
+          break;
+        case "animateUnreveal":
+          this.animateUnreveal(timestamp);
+          break;
+      }
+    };
+
+    const pick = () => {
+      picked = true;
+    };
+
+    return { update, object: result, pick, cards, cardGroups };
+  }
+
+  animatePick(timestamp) {
+    const delta = timestamp - this.animateStart;
+    if (delta < 500) {
+      this.stopJiggle(delta / 500, timestamp);
+    } else if (delta < 1500) {
+      this.raiseCard(clampT((delta - 500) / 1000), timestamp);
+    } else if (delta < 2500) {
+      this.presentCard(clampT((delta - 1500) / 1000), timestamp);
+    } else {
+      this.presentCard(1, timestamp);
+      this.animateStart = null;
+      if (this.cardValue) this.state = "picked";
+      else this.state = "animateUnpick";
+    }
+  }
+
+  animateUnpick(timestamp) {
+    const delta = timestamp - this.animateStart;
+    if (delta < 500) {
+      this.presentCard(1 - clampT(delta / 500), timestamp);
+    } else if (delta < 1000) {
+      this.raiseCard(1 - clampT((delta - 500) / 500), timestamp);
+    } else if (delta < 1500) {
+      this.stopJiggle(1 - clampT((delta - 1000) / 500), timestamp);
+    } else {
+      this.animateStart = null;
+      if (!this.cardValue) this.state = "thinking";
+      else this.state = "animatePick";
+    }
+  }
+
+  animateReveal(timestamp) {
+    const delta = timestamp - this.animateStart;
+    if (delta < 1000) {
+      this.flip(clampT(delta / 1000), timestamp);
+    } else {
+      this.animateStart = null;
+      this.flip(1, timestamp);
+      this.state = "revealed";
+    }
+  }
+
+  animateUnreveal(timestamp) {
+    const delta = timestamp - this.animateStart;
+    if (delta < 500) {
+      this.flip(1 - clampT(delta / 500), timestamp);
+    } else {
+      this.flip(0, timestamp);
+      this.animateStart = null;
+      if (this.cardValue) this.state = "picked";
+      else this.state = "animateUnpick";
+    }
+  }
+
+  stopJiggle(t, timestamp) {
+    const jiggleFactor = 1 - easeInOutQuad(t);
+    this.hand.cards.forEach((card, i) => {
+      card.position.y =
+        5 + jiggleFactor * ThreeHand.getOffset(timestamp + 100 * i);
+    });
+  }
+
+  raiseCard(t, timestamp) {
+    const eased = easeInOutQuad(t);
+    this.hand.cards[3].position.y = 5 + 0.8 - 0.8 * Math.cos(eased * Math.PI);
+  }
+
+  presentCard(t, timestamp) {
+    const eased = easeInOutQuad(t);
+    this.hand.cards[3].position.y =
+      5 + 0.8 - 0.8 * Math.cos(eased * Math.PI + Math.PI);
+    this.hand.cards[3].position.z = 3 * 0.05 - 1 * eased;
+    this.hand.cardGroups.forEach((cardGroup, i) => {
+      cardGroup.rotation.z =
+        (1 - eased) * -0.1 * (i - (this.hand.cards.length - 1) / 2);
+      if (i !== 3) {
+        cardGroup.rotation.x = -(Math.PI / 2) * eased;
+      }
+    });
+  }
+
+  flip(t, timestamp) {
+    const eased = easeInOutQuad(t);
+    this.hand.cards[3].rotation.y = eased * Math.PI;
   }
 
   static createCardGeometry() {
@@ -141,4 +342,22 @@ class ThreeHand {
 
     return shape;
   }
+
+  static getOffset(timestamp) {
+    const t = timestamp % 1000;
+    if (t < 500) {
+      return 0.05 - 0.05 * Math.cos((t / 500) * 2 * Math.PI);
+    }
+    return 0;
+  }
+}
+
+function easeInOutQuad(t) {
+  return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+}
+
+function clampT(t) {
+  if (t < 0) return 0;
+  if (t > 1) return 1;
+  return t;
 }
