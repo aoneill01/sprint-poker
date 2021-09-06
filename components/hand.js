@@ -1,5 +1,6 @@
 import { Button, makeStyles } from "@material-ui/core";
 import { cards } from "../cards";
+import Image from "next/image";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -12,6 +13,15 @@ const useStyles = makeStyles((theme) => ({
     height: theme.spacing(20),
     width: theme.spacing(12),
     fontSize: 36,
+  },
+  cardImage: {
+    borderRadius: 10,
+    filter: "saturate(100%)",
+    transition: "filter .5s",
+    cursor: "pointer",
+  },
+  notSelected: {
+    filter: "saturate(0%)",
   },
 }));
 
@@ -38,16 +48,13 @@ export default function Hand({ cardValue, onSelection }) {
 function CardButton({ card, onSelection, isSelected, hasSelection }) {
   const classes = useStyles();
   return (
-    <Button
+    <Image
       onClick={onSelection}
-      variant="contained"
-      style={{
-        backgroundColor: !hasSelection || isSelected ? card.color : "gray",
-        color: "white",
-      }}
-      className={classes.cardButton}
-    >
-      {card.value}
-    </Button>
+      src={card.image}
+      className={`${classes.cardImage} ${
+        !isSelected && hasSelection ? classes.notSelected : ""
+      }`}
+      alt={card.value}
+    />
   );
 }

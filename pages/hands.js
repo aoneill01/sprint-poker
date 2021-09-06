@@ -33,6 +33,7 @@ const useStyles = makeStyles((theme) => ({
     color: "white",
   },
   main: {
+    backgroundColor: "white",
     maxWidth: theme.spacing(50),
     display: "flex",
     flexDirection: "column",

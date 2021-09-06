@@ -1,29 +1,11 @@
-import {
-  Avatar,
-  Button,
-  IconButton,
-  List,
-  ListItem,
-  ListItemAvatar,
-  ListItemSecondaryAction,
-  ListItemText,
-  makeStyles,
-  Typography,
-} from "@material-ui/core";
-import { Delete, Help, ThumbUp } from "@material-ui/icons";
+import { Button, IconButton, makeStyles, Typography } from "@material-ui/core";
 import { useState } from "react";
 import useTimer from "../hooks/useTimer";
 import useWebSocket from "../hooks/useWebSocket";
 import Image from "next/image";
 import qr from "../images/qr.png";
-import card1 from "../images/card1.png";
-import card2 from "../images/card2.png";
-import card3 from "../images/card3.png";
-import card5 from "../images/card5.png";
-import card8 from "../images/card8.png";
-import card13 from "../images/card13.png";
-import card21 from "../images/card21.png";
 import AnimatedHand from "../components/animatedHand";
+import { Close } from "@material-ui/icons";
 
 const useStyles = makeStyles((theme) => ({
   top: {
@@ -31,25 +13,48 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "baseline",
     padding: theme.spacing(1),
     gap: theme.spacing(2),
+    backgroundColor: "#fff",
   },
   ready: {
     backgroundColor: theme.palette.secondary.main,
     color: theme.palette.secondary.contrastText,
   },
-  shown: {
-    color: "white",
-  },
   main: {
-    maxWidth: theme.spacing(50),
+    maxWidth: 212,
     display: "flex",
     flexDirection: "column",
+    backgroundColor: "black",
   },
-  list: {
+  hands: {
     flex: 1,
+  },
+  personContainer: {
+    position: "relative",
+    border: "2px solid #333",
+    margin: 4,
+  },
+  name: {
+    position: "absolute",
+    bottom: 0,
+    left: 4,
+    color: "white",
+    opacity: 0.7,
+    fontWeight: "bold",
+  },
+  delete: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    color: "white",
+    opacity: 0.2,
   },
   figure: {
     margin: 0,
+    color: "white",
     paddingBottom: theme.spacing(1),
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
     "& figcaption": {
       fontSize: 12,
       marginLeft: theme.spacing(1),
@@ -64,10 +69,6 @@ export default function Hands() {
   const showCards = hands?.every(({ card }) => card !== null);
   const classes = useStyles();
 
-  const getAvatar = (card) => {
-    return <AnimatedHand cardValue={card} showCards={showCards} />;
-  };
-
   const handleReset = () => {
     setStart(new Date());
     reset();
@@ -81,40 +82,36 @@ export default function Hands() {
         </Button>
         <Typography>{time}</Typography>
       </div>
-      <List className={classes.list}>
+      <div className={classes.hands}>
         {hands
           ?.sort((handA, handB) => handA.name.localeCompare(handB.name))
           .map(({ name, card }) => (
-            <ListItem key={name}>
-              <ListItemAvatar>{getAvatar(card)}</ListItemAvatar>
-              <ListItemText>{name}</ListItemText>
-              <ListItemSecondaryAction>
-                <IconButton
-                  edge="end"
-                  aria-label="kick"
-                  onClick={() => kick(name)}
-                >
-                  <Delete />
-                </IconButton>
-              </ListItemSecondaryAction>
-            </ListItem>
+            <div key={name} className={classes.personContainer}>
+              <AnimatedHand cardValue={card} showCards={showCards} />
+              <Typography className={classes.name}>{name}</Typography>
+              <IconButton
+                aria-label="delete"
+                className={classes.delete}
+                size="small"
+                onClick={() => kick(name)}
+              >
+                <Close />
+              </IconButton>
+            </div>
           ))}
-      </List>
+      </div>
       <figure className={classes.figure}>
-        <Image src={qr} alt="http://sprint.do.aoneill.com" />
+        <Image
+          className={classes.qr}
+          src={qr}
+          alt="http://sprint.do.aoneill.com"
+        />
         <Typography component="figcaption">
           Join at{" "}
           <a href="http://sprint.do.aoneill.com">
             http://sprint.do.aoneill.com
           </a>
         </Typography>
-        <Image src={card1} />
-        <Image src={card2} />
-        <Image src={card3} />
-        <Image src={card5} />
-        <Image src={card8} />
-        <Image src={card13} />
-        <Image src={card21} />
       </figure>
     </main>
   );
