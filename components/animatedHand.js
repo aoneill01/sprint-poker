@@ -95,11 +95,9 @@ class ThreeHand {
     scene.background = new Color(0x111111);
 
     const animate = (timestamp) => {
-      //   let angle = Math.floor(timestamp) / 1000;
       this.hand.update(timestamp);
       requestAnimationFrame(animate);
       renderer.render(scene, camera);
-      //   this.hand.object.rotation.y = angle;
     };
     requestAnimationFrame(animate);
   }
@@ -116,6 +114,9 @@ class ThreeHand {
         this.showTimerId = setTimeout(() => {
           this.state = "animateReveal";
           this.animateStart = null;
+          this.presentCard(1);
+          this.raiseCard(1);
+          this.stopJiggle(1);
         }, 3000);
       }
     } else {
@@ -215,11 +216,13 @@ class ThreeHand {
     if (delta < 500) {
       this.stopJiggle(delta / 500, timestamp);
     } else if (delta < 1500) {
-      this.raiseCard(clampT((delta - 500) / 1000), timestamp);
+      this.raiseCard(clampT((delta - 500) / 1000));
     } else if (delta < 2500) {
-      this.presentCard(clampT((delta - 1500) / 1000), timestamp);
+      this.presentCard(clampT((delta - 1500) / 1000));
     } else {
-      this.presentCard(1, timestamp);
+      this.stopJiggle(1, timestamp);
+      this.raiseCard(1);
+      this.presentCard(1);
       this.animateStart = null;
       if (this.cardValue) this.state = "picked";
       else this.state = "animateUnpick";
@@ -229,12 +232,15 @@ class ThreeHand {
   animateUnpick(timestamp) {
     const delta = timestamp - this.animateStart;
     if (delta < 500) {
-      this.presentCard(1 - clampT(delta / 500), timestamp);
+      this.presentCard(1 - clampT(delta / 500));
     } else if (delta < 1000) {
-      this.raiseCard(1 - clampT((delta - 500) / 500), timestamp);
+      this.raiseCard(1 - clampT((delta - 500) / 500));
     } else if (delta < 1500) {
       this.stopJiggle(1 - clampT((delta - 1000) / 500), timestamp);
     } else {
+      this.presentCard(0);
+      this.raiseCard(0);
+      this.stopJiggle(0, timestamp);
       this.animateStart = null;
       if (!this.cardValue) this.state = "thinking";
       else this.state = "animatePick";
@@ -244,10 +250,10 @@ class ThreeHand {
   animateReveal(timestamp) {
     const delta = timestamp - this.animateStart;
     if (delta < 1000) {
-      this.flip(clampT(delta / 1000), timestamp);
+      this.flip(clampT(delta / 1000));
     } else {
       this.animateStart = null;
-      this.flip(1, timestamp);
+      this.flip(1);
       this.state = "revealed";
     }
   }
@@ -255,9 +261,9 @@ class ThreeHand {
   animateUnreveal(timestamp) {
     const delta = timestamp - this.animateStart;
     if (delta < 500) {
-      this.flip(1 - clampT(delta / 500), timestamp);
+      this.flip(1 - clampT(delta / 500));
     } else {
-      this.flip(0, timestamp);
+      this.flip(0);
       this.animateStart = null;
       if (this.cardValue) this.state = "picked";
       else this.state = "animateUnpick";
@@ -272,12 +278,12 @@ class ThreeHand {
     });
   }
 
-  raiseCard(t, timestamp) {
+  raiseCard(t) {
     const eased = easeInOutQuad(t);
     this.hand.cards[3].position.y = 5 + 0.8 - 0.8 * Math.cos(eased * Math.PI);
   }
 
-  presentCard(t, timestamp) {
+  presentCard(t) {
     const eased = easeInOutQuad(t);
     this.hand.cards[3].position.y =
       5 + 0.8 - 0.8 * Math.cos(eased * Math.PI + Math.PI);
@@ -291,7 +297,7 @@ class ThreeHand {
     });
   }
 
-  flip(t, timestamp) {
+  flip(t) {
     const eased = easeInOutQuad(t);
     this.hand.cards[3].rotation.y = eased * Math.PI;
   }
