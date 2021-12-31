@@ -24,6 +24,34 @@ const useStyles = makeStyles(() => ({
     alignSelf: "end",
     marginBottom: 48,
   },
+  cutout: {
+    animation: "$cutoutBackground 60s",
+    animationIterationCount: "infinite",
+    animationDirection: "alternate",
+  },
+  "@keyframes cutoutBackground": {
+    "0%": {
+      fill: "#ad1f66",
+    },
+    "17%": {
+      fill: "#b92f43",
+    },
+    "33%": {
+      fill: "#b44c23",
+    },
+    "50%": {
+      fill: "#a26700",
+    },
+    "67%": {
+      fill: "#857f00",
+    },
+    "83%": {
+      fill: "#5f9229",
+    },
+    "100%": {
+      fill: "#12a159",
+    },
+  },
 }));
 
 export default function Hands() {
@@ -49,10 +77,9 @@ export default function Hands() {
             </div>
           ))}
         <div className={classes.middle}>
-          {" "}
           <svg viewBox="0 0 900 500" xmlns="http://www.w3.org/2000/svg">
             <polyline
-              fill="#ad1f66"
+              className={classes.cutout}
               points="250,0 900,0 900,250 650,500 0,500 0,250"
             />
           </svg>
