@@ -37,13 +37,14 @@ const cardImages = [
   { value: 21, image: card21 },
 ];
 
-export default function AnimatedHand({ cardValue, showCards }) {
+export default function AnimatedHand({ cardValue, showCards, scale = 1.0 }) {
   const myTest = useRef(null);
   const myDiv = useRef(null);
   useEffect(() => {
-    if (myTest.current === null) myTest.current = new ThreeHand(myDiv.current);
+    if (myTest.current === null)
+      myTest.current = new ThreeHand(myDiv.current, scale);
     myTest.current.update(cardValue, showCards);
-  }, [cardValue, showCards]);
+  }, [cardValue, showCards, scale]);
   return <div ref={myDiv}></div>;
 }
 
@@ -68,11 +69,11 @@ class ThreeHand {
     {}
   );
 
-  constructor(element) {
+  constructor(element, scale) {
     this.state = "thinking";
 
-    const width = 200;
-    const height = 125;
+    const width = 200 * scale;
+    const height = 125 * scale;
 
     const renderer = new WebGLRenderer({ antialias: true });
     renderer.setSize(width, height);
